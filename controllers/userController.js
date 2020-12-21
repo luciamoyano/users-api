@@ -9,21 +9,28 @@ class UserController {
 
   //async porque tenemos que esperar la llamada del service a la db
   async getUsers(req, res) {
-    const users = await this.userService.getUsers();
-    users
-      ? res.status(200).json(users)
-      : res.status(400).send("no users to display");
+    try {
+      const users = await this.userService.getUsers();
+      res.status(200).json(users);
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("no users to display");
+    }
   }
 
   async addUser(req, res) {
     const user = req.body;
     const { token } = req.headers;
-    if (user && user.name && token == "r2d2") {
-      const response = await this.userService.addUser(user);
+    if (user.name && token == "r2d2") {
       //respuesta de la base de datos
-      response
-        ? res.status(200).send("user added")
-        : res.status(400).send("user couldn't be added");
+      try {
+        const response = await this.userService.addUser(user);
+        res.status(200).send("user added");
+      } catch (error) {
+        //el parametro que recibe el catch es el error
+        console.log(error);
+        res.status(500).send("user couldn't be added");
+      }
     } else if (!token || token !== "r2d2") {
       res.status(400).send("token needed");
     } else {
@@ -34,9 +41,14 @@ class UserController {
   async modifyUser(req, res) {
     const user = req.body;
     if (user.id) {
-      const response = await this.userService.modifyUser(user);
-      console.log(response);
-      res.status(200).send("user modified");
+      try {
+        const response = await this.userService.modifyUser(user);
+        console.log(response);
+        res.status(200).send("user modified");
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("user couldn't be modified");
+      }
     } else {
       res.status(400).send("no id provided");
     }
@@ -44,9 +56,13 @@ class UserController {
 
   async deleteUser(req, res) {
     const { id } = req.params;
-    const response = await this.userService.deleteUser(id);
-    console.log(response);
-    res.status(200).send("usuario borrado");
+    try {
+      const response = await this.userService.deleteUser(id);
+      console.log(response);
+      res.status(200).send("deleted user");
+    } catch (error) {
+      res.status(500).send("user couldn't be deleted");
+    }
   }
 }
 

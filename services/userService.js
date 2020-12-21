@@ -25,9 +25,7 @@ class UserService {
   }
 
   deleteUser(id) {
-    const query = User.deleteOne({ _id: id }, function (err) {
-      err ? console.log(err) : console.log("Successful deletion");
-    });
+    const query = User.deleteOne({ _id: id });
     return query;
   }
 }
